@@ -483,19 +483,38 @@
     placeButton(btn, ax, ay);
   }
 
-  function moveYesSometimes(){
-    // yes also dodges but "gets tired" and becomes easier to click over time
-    if(state.yesCaught) return;
+let lastYesDodge = 0;
+let yesDodges = 0;
 
-    const dist = distanceToPointer(yesBtn);
-    const threshold = 120 - state.level*10; // lower threshold over time (less dodging)
-    if(dist < threshold){
-      const fatigue = clamp(state.level/6, 0, 0.8); // grows; reduces dodge strength
-      const strength = 1 - fatigue;
-      moveAway(yesBtn, strength);
-      blip('good');
-    }
+function moveYesSometimes(){
+  if(state.yesCaught) return;
+
+  const now = performance.now();
+
+  // ✅ cooldown so it doesn't dodge constantly
+  if(now - lastYesDodge < 220) return;
+
+  const dist = distanceToPointer(yesBtn);
+
+  // ✅ smaller zone = easier to get close
+  const threshold = 85 - state.level * 6;  // was 120 - level*10
+
+  if(dist < threshold){
+    yesDodges++;
+    lastYesDodge = now;
+
+    // ✅ YES moves less + gets tired faster
+    const fatigue = clamp(yesDodges / 8, 0, 0.75); // faster fatigue
+    const strength = 0.45 * (1 - fatigue);         // shorter jumps
+
+    moveAway(yesBtn, strength);
+    blip('good');
+
+    // ✅ after a few dodges, it starts behaving 😌
+    if(yesDodges >= 10) state.yesCaught = true; // stops YES dodging (optional)
   }
+}
+
 
   function moveNoAlways(){
     const dist = distanceToPointer(noBtn);
