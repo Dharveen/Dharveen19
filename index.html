@@ -1,0 +1,619 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>💘 One Question…</title>
+  <style>
+    :root{
+      --bg1:#0b1020;
+      --bg2:#1a0b2e;
+      --card:#0f1630cc;
+      --txt:#f6f7ff;
+      --muted:#c7c8ffcc;
+      --pink:#ff4da6;
+      --pink2:#ff7ac8;
+      --cyan:#4de0ff;
+      --good:#39ff9e;
+      --bad:#ff5c7a;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--txt);
+      overflow:hidden;
+      background:
+        radial-gradient(1200px 800px at 20% 20%, #2b1a62 0%, transparent 55%),
+        radial-gradient(1000px 700px at 80% 30%, #6a1845 0%, transparent 55%),
+        radial-gradient(900px 700px at 50% 90%, #0d3b66 0%, transparent 55%),
+        linear-gradient(140deg, var(--bg1), var(--bg2));
+    }
+
+    /* subtle floating background hearts */
+    .bg-hearts::before,.bg-hearts::after{
+      content:"";
+      position:absolute; inset:-20%;
+      background:
+        radial-gradient(circle at 10% 20%, rgba(255,77,166,.12) 0 10px, transparent 11px),
+        radial-gradient(circle at 80% 30%, rgba(77,224,255,.10) 0 9px, transparent 10px),
+        radial-gradient(circle at 50% 80%, rgba(255,122,200,.10) 0 12px, transparent 13px);
+      filter: blur(1px);
+      animation: drift 10s linear infinite;
+      pointer-events:none;
+    }
+    .bg-hearts::after{
+      animation-duration: 14s;
+      transform: rotate(7deg);
+      opacity:.7;
+    }
+    @keyframes drift{
+      from{transform: translate3d(0,0,0) rotate(0deg)}
+      to{transform: translate3d(4%, -3%, 0) rotate(3deg)}
+    }
+
+    .wrap{
+      position:relative;
+      height:100%;
+      display:grid;
+      place-items:center;
+      padding: 24px;
+    }
+
+    .card{
+      width:min(720px, 92vw);
+      border:1px solid rgba(255,255,255,.14);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      backdrop-filter: blur(10px);
+      border-radius: 24px;
+      box-shadow: 0 20px 70px rgba(0,0,0,.45);
+      overflow:hidden;
+      position:relative;
+    }
+
+    .top{
+      padding: 26px 26px 14px;
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.25);
+      color: var(--muted);
+      font-size: 13px;
+      letter-spacing: .3px;
+    }
+    .badge .dot{
+      width:10px;height:10px;border-radius:50%;
+      background: radial-gradient(circle at 30% 30%, #fff 0 2px, var(--pink) 3px 10px);
+      box-shadow: 0 0 14px rgba(255,77,166,.6);
+    }
+
+    h1{
+      margin: 18px 0 8px;
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.05;
+    }
+    p{
+      margin:0;
+      color: var(--muted);
+      font-size: clamp(14px, 2vw, 16px);
+      line-height: 1.5;
+    }
+
+    .arena{
+      position:relative;
+      margin: 18px;
+      padding: 18px;
+      border-radius: 18px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
+      height: 270px;
+      overflow:hidden;
+    }
+
+    .btn{
+      position:absolute;
+      padding: 14px 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.10);
+      color: var(--txt);
+      cursor:pointer;
+      font-weight: 650;
+      letter-spacing: .2px;
+      user-select:none;
+      touch-action: manipulation;
+      transform: translate(-50%,-50%);
+      transition: transform .12s ease, filter .12s ease, background .12s ease;
+      box-shadow: 0 10px 24px rgba(0,0,0,.25);
+      display:flex;
+      align-items:center;
+      gap:10px;
+      white-space:nowrap;
+    }
+    .btn:hover{filter: brightness(1.08)}
+    .btn:active{transform: translate(-50%,-50%) scale(.98)}
+
+    .yes{
+      background: linear-gradient(90deg, rgba(57,255,158,.22), rgba(77,224,255,.16));
+      border-color: rgba(57,255,158,.35);
+    }
+    .no{
+      background: linear-gradient(90deg, rgba(255,92,122,.22), rgba(255,77,166,.14));
+      border-color: rgba(255,92,122,.35);
+    }
+
+    .hint{
+      margin-top: 10px;
+      display:flex;
+      justify-content:space-between;
+      color: rgba(255,255,255,.55);
+      font-size: 12px;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono";
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.22);
+      color: rgba(255,255,255,.75);
+    }
+
+    /* celebration overlay */
+    .overlay{
+      position:absolute; inset:0;
+      display:none;
+      place-items:center;
+      background: radial-gradient(900px 600px at 50% 40%, rgba(255,77,166,.28), rgba(0,0,0,.75));
+      z-index: 5;
+    }
+    .overlay.show{display:grid}
+    .message{
+      width:min(560px, 90vw);
+      padding: 22px 22px 18px;
+      border-radius: 22px;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(0,0,0,.35);
+      backdrop-filter: blur(10px);
+      text-align:center;
+      box-shadow: 0 20px 60px rgba(0,0,0,.55);
+    }
+    .message h2{
+      margin: 0 0 10px;
+      font-size: clamp(22px, 3.2vw, 32px);
+      line-height:1.15;
+    }
+    .message .sub{
+      margin:0 0 14px;
+      color: rgba(255,255,255,.72);
+    }
+    .line{
+      height:1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.22), transparent);
+      margin: 14px 0 14px;
+    }
+    .tiny{
+      font-size: 12px;
+      color: rgba(255,255,255,.55);
+      margin-top: 10px;
+    }
+
+    /* canvas sits above everything but ignores clicks */
+    canvas{
+      position: fixed;
+      inset: 0;
+      pointer-events:none;
+      z-index: 4;
+    }
+
+    /* accessibility / reduced motion */
+    @media (prefers-reduced-motion: reduce){
+      .bg-hearts::before,.bg-hearts::after{animation:none}
+      .btn{transition:none}
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-hearts" aria-hidden="true"></div>
+  <canvas id="fx"></canvas>
+
+  <div class="wrap">
+    <div class="card">
+      <div class="top">
+        <div class="badge"><span class="dot"></span> tiny program, big question</div>
+        <h1>Will you be my Valentine? 💘</h1>
+        <p>Warning: this page contains <b>cute chaos</b>. Your cursor is being followed by suspiciously romantic physics.</p>
+      </div>
+
+      <div class="arena" id="arena">
+        <button class="btn yes" id="yesBtn" aria-label="Yes">
+          ✅ Yes
+        </button>
+
+        <button class="btn no" id="noBtn" aria-label="No">
+          🙈 No
+        </button>
+
+        <div class="hint">
+          <span>Tip: try <kbd>touch</kbd> / <kbd>hover</kbd> / <kbd>click</kbd>…</span>
+          <span id="status">Difficulty: 1/5</span>
+        </div>
+
+        <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-label="Valentine message">
+          <div class="message">
+            <h2 id="finalTitle">YAY!! 💞</h2>
+            <p class="sub" id="finalText">
+              You just made my whole day. <br/>
+              I choose you — today, Valentine’s, and all the tiny ordinary days too.
+            </p>
+            <div class="line"></div>
+            <p class="tiny">Screenshot this as evidence. (I will deny nothing.) 😌</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  // ---------- PERSONALIZE HERE ----------
+  const HER_NAME = "my favorite human";     // e.g. "Aisha"
+  const YOUR_NAME = "your programmer";      // e.g. "Rohan"
+  const FINAL_TITLE = `It’s a date, ${HER_NAME}! 💖`;
+  const FINAL_TEXT = `You clicked YES 🥹<br><br>
+    Here’s my promise: more laughs, more snacks, more random little surprises — with you.<br>
+    Happy Valentine’s, ${HER_NAME}.<br><br>
+    — ${YOUR_NAME} 💘`;
+
+  // ---------- DOM ----------
+  const arena = document.getElementById('arena');
+  const yesBtn = document.getElementById('yesBtn');
+  const noBtn  = document.getElementById('noBtn');
+  const overlay = document.getElementById('overlay');
+  const statusEl = document.getElementById('status');
+  document.getElementById('finalTitle').textContent = FINAL_TITLE;
+  document.getElementById('finalText').innerHTML = FINAL_TEXT;
+
+  // ---------- CANVAS FX ----------
+  const canvas = document.getElementById('fx');
+  const ctx = canvas.getContext('2d');
+  let W=0,H=0, DPR=1;
+  function resize(){
+    DPR = Math.min(2, window.devicePixelRatio || 1);
+    W = canvas.width  = Math.floor(innerWidth  * DPR);
+    H = canvas.height = Math.floor(innerHeight * DPR);
+    canvas.style.width = innerWidth + 'px';
+    canvas.style.height = innerHeight + 'px';
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  // Heart particle
+  const particles = [];
+  function addHeart(x,y,burst=false){
+    const count = burst ? 18 : 3;
+    for(let i=0;i<count;i++){
+      particles.push({
+        x, y,
+        vx: (Math.random()*2-1) * (burst? 3.2 : 0.6),
+        vy: (Math.random()*2-1) * (burst? 3.2 : 0.6) - (burst? 1.0 : 0.2),
+        life: burst ? 90 : 50,
+        size: burst ? (8 + Math.random()*10) : (6 + Math.random()*6),
+        rot: Math.random()*Math.PI,
+        vr: (Math.random()*2-1)*0.08,
+        hue: Math.random() < 0.75 ? 330 : 190
+      });
+    }
+  }
+
+  function drawHeart(x,y,s,rot,hue,alpha){
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.rotate(rot);
+    ctx.scale(s/18, s/18);
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = `hsla(${hue}, 90%, 65%, ${alpha})`;
+    ctx.beginPath();
+    // simple heart path
+    ctx.moveTo(0, 6);
+    ctx.bezierCurveTo(0, -6, -18, -6, -18, 6);
+    ctx.bezierCurveTo(-18, 18, 0, 22, 0, 32);
+    ctx.bezierCurveTo(0, 22, 18, 18, 18, 6);
+    ctx.bezierCurveTo(18, -6, 0, -6, 0, 6);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function tick(){
+    ctx.clearRect(0,0,innerWidth,innerHeight);
+    for(let i=particles.length-1;i>=0;i--){
+      const p = particles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.03;
+      p.vx *= 0.99;
+      p.vy *= 0.99;
+      p.rot += p.vr;
+      p.life--;
+      const alpha = Math.max(0, Math.min(1, p.life / 90));
+      drawHeart(p.x, p.y, p.size, p.rot, p.hue, alpha);
+      if(p.life <= 0) particles.splice(i,1);
+    }
+    requestAnimationFrame(tick);
+  }
+  tick();
+
+  // ---------- AUDIO (no external files) ----------
+  let audioCtx = null;
+  function ensureAudio(){
+    if(!audioCtx){
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+  }
+  function blip(type='good'){
+    if(!audioCtx) return;
+    const t0 = audioCtx.currentTime;
+
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    const f = audioCtx.createBiquadFilter();
+    f.type = "lowpass";
+    f.frequency.value = 1400;
+
+    o.type = "sine";
+    const base = (type==='good') ? 660 : 220;
+    o.frequency.setValueAtTime(base, t0);
+    o.frequency.exponentialRampToValueAtTime(base * (type==='good' ? 1.8 : 1.15), t0 + 0.08);
+
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(type==='good' ? 0.08 : 0.06, t0 + 0.015);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.12);
+
+    o.connect(f);
+    f.connect(g);
+    g.connect(audioCtx.destination);
+    o.start(t0);
+    o.stop(t0 + 0.14);
+  }
+
+  function sparkle(){
+    if(!audioCtx) return;
+    const t0 = audioCtx.currentTime;
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = "triangle";
+    o.frequency.setValueAtTime(880, t0);
+    o.frequency.exponentialRampToValueAtTime(1760, t0 + 0.12);
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(0.06, t0 + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.18);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(t0); o.stop(t0 + 0.2);
+  }
+
+  // ---------- BUTTON DODGE LOGIC ----------
+  const state = {
+    tries: 0,
+    level: 1, // increases with time/clicks
+    lastMoveAt: 0,
+    pointerX: innerWidth/2,
+    pointerY: innerHeight/2,
+    yesCaught: false
+  };
+
+  function arenaRect(){ return arena.getBoundingClientRect(); }
+
+  function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
+
+  function placeButton(btn, ax, ay){
+    // ax/ay are coords in arena space
+    btn.style.left = ax + 'px';
+    btn.style.top  = ay + 'px';
+  }
+
+  // initial positions
+  function initPositions(){
+    const r = arenaRect();
+    placeButton(yesBtn, r.width*0.34, r.height*0.55);
+    placeButton(noBtn,  r.width*0.66, r.height*0.55);
+  }
+  initPositions();
+  window.addEventListener('resize', initPositions);
+
+  function getBtnPos(btn){
+    const r = arenaRect();
+    const b = btn.getBoundingClientRect();
+    return {
+      x: (b.left + b.width/2) - r.left,
+      y: (b.top + b.height/2) - r.top,
+      w: b.width,
+      h: b.height
+    };
+  }
+
+  function distanceToPointer(btn){
+    const r = arenaRect();
+    const b = btn.getBoundingClientRect();
+    const cx = b.left + b.width/2;
+    const cy = b.top  + b.height/2;
+    const dx = cx - state.pointerX;
+    const dy = cy - state.pointerY;
+    return Math.hypot(dx,dy);
+  }
+
+  function moveAway(btn, strength=1){
+    const r = arenaRect();
+    const pos = getBtnPos(btn);
+    // vector from pointer (in page space) to btn center (in page space)
+    const b = btn.getBoundingClientRect();
+    const cx = b.left + b.width/2;
+    const cy = b.top  + b.height/2;
+
+    let dx = cx - state.pointerX;
+    let dy = cy - state.pointerY;
+    const d = Math.max(0.001, Math.hypot(dx,dy));
+    dx /= d; dy /= d;
+
+    // chaotic side drift
+    const side = (Math.random()*2-1) * 0.9;
+    const nx = -dy * side;
+    const ny =  dx * side;
+
+    const step = (26 + state.level*10) * strength;
+    let ax = pos.x + (dx + nx) * step;
+    let ay = pos.y + (dy + ny) * step;
+
+    // keep within arena bounds
+    const padX = pos.w/2 + 10;
+    const padY = pos.h/2 + 10;
+    ax = clamp(ax, padX, r.width - padX);
+    ay = clamp(ay, padY, r.height - padY);
+
+    placeButton(btn, ax, ay);
+  }
+
+  function moveYesSometimes(){
+    // yes also dodges but "gets tired" and becomes easier to click over time
+    if(state.yesCaught) return;
+
+    const dist = distanceToPointer(yesBtn);
+    const threshold = 120 - state.level*10; // lower threshold over time (less dodging)
+    if(dist < threshold){
+      const fatigue = clamp(state.level/6, 0, 0.8); // grows; reduces dodge strength
+      const strength = 1 - fatigue;
+      moveAway(yesBtn, strength);
+      blip('good');
+    }
+  }
+
+  function moveNoAlways(){
+    const dist = distanceToPointer(noBtn);
+    const threshold = 170 + state.level*14; // No gets more dodgy
+    if(dist < threshold){
+      moveAway(noBtn, 1.1);
+      blip('bad');
+    }
+  }
+
+  function setDifficulty(){
+    // ramps with tries/time but caps
+    state.level = clamp(1 + Math.floor(state.tries/3), 1, 5);
+    statusEl.textContent = `Difficulty: ${state.level}/5`;
+  }
+
+  // pointer tracking
+  function onPointerMove(e){
+    state.pointerX = e.clientX;
+    state.pointerY = e.clientY;
+    addHeart(state.pointerX, state.pointerY, false);
+
+    // Throttle movement logic a bit
+    const now = performance.now();
+    if(now - state.lastMoveAt < 22) return;
+    state.lastMoveAt = now;
+
+    moveNoAlways();
+    moveYesSometimes();
+  }
+  window.addEventListener('pointermove', onPointerMove, {passive:true});
+
+  // mobile: add hearts on touch drag
+  window.addEventListener('pointerdown', (e) => {
+    ensureAudio(); // enables sound after user gesture
+    addHeart(e.clientX, e.clientY, true);
+    sparkle();
+  }, {passive:true});
+
+  // Prevent context menu long-press annoyance on mobile
+  window.addEventListener('contextmenu', (e) => e.preventDefault());
+
+  // No button click: playful responses
+  const noPhrases = [
+    "Nice try 😼",
+    "That was almost convincing 🙈",
+    "Oh you thought 💅",
+    "Not today, tiny finger 😭",
+    "Plot armor: activated 🛡️"
+  ];
+  noBtn.addEventListener('click', (e) => {
+    ensureAudio();
+    state.tries++;
+    setDifficulty();
+    moveAway(noBtn, 1.25);
+    addHeart(e.clientX, e.clientY, true);
+    blip('bad');
+
+    const t = noPhrases[state.tries % noPhrases.length];
+    noBtn.textContent = `🙈 ${t}`;
+    setTimeout(() => noBtn.textContent = "🙈 No", 900);
+  });
+
+  // Make hovering near buttons trigger movement too
+  function proximityWiggle(){
+    // If pointer is near but not moving, still apply dodge a bit
+    moveNoAlways();
+    moveYesSometimes();
+    requestAnimationFrame(proximityWiggle);
+  }
+  proximityWiggle();
+
+  // Yes click: celebration
+  function celebrate(x,y){
+    ensureAudio();
+    state.yesCaught = true;
+    overlay.classList.add('show');
+
+    // hearts fireworks
+    const bursts = 6;
+    for(let i=0;i<bursts;i++){
+      setTimeout(() => {
+        const bx = x + (Math.random()*160 - 80);
+        const by = y + (Math.random()*120 - 60);
+        addHeart(bx, by, true);
+        sparkle();
+      }, i*120);
+    }
+    // stop dodging
+    yesBtn.style.filter = "brightness(1.2)";
+    yesBtn.style.boxShadow = "0 0 0 2px rgba(57,255,158,.35), 0 20px 50px rgba(57,255,158,.18)";
+  }
+
+  yesBtn.addEventListener('click', (e) => {
+    celebrate(e.clientX, e.clientY);
+  });
+
+  // Also allow clicking overlay to dismiss (optional)
+  overlay.addEventListener('click', () => {
+    overlay.classList.remove('show');
+  });
+
+  // Make it gradually easier to click YES even if she struggles:
+  // after ~10 seconds, YES starts staying closer to center.
+  setTimeout(() => {
+    const r = arenaRect();
+    // gently nudge YES toward center every second
+    const nudge = setInterval(() => {
+      if(state.yesCaught) return clearInterval(nudge);
+      const pos = getBtnPos(yesBtn);
+      const targetX = r.width*0.5, targetY = r.height*0.56;
+      const ax = pos.x + (targetX - pos.x) * 0.12;
+      const ay = pos.y + (targetY - pos.y) * 0.12;
+      placeButton(yesBtn, ax, ay);
+    }, 900);
+  }, 10000);
+
+})();
+</script>
+</body>
+</html>
